@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { FiShoppingCart } from "react-icons/fi";
 import { GrFormSubtract } from "react-icons/gr";
 import { IoMdAdd } from "react-icons/io";
+import { IoSearch } from "react-icons/io5";
 
 import Watch from '../assets/watch.jpg';
 import Headset from '../assets/headsett.jpg';
@@ -32,6 +33,8 @@ function App() {
     const [selectedItems, setSelectedItems] = useState([]);
 
     const handleAddCart = (product) => {
+
+        // Check if the product was already clicked (cart), if not, it will add the id
         if(selectedItems.includes(product.id)){
             return;
         }else{
@@ -48,20 +51,37 @@ function App() {
     
     }
 
-    useEffect(() => {
-        console.log(cartItems)
-    }, [cartItems])
+    // SEARCH
+    const [searchInput, setSearchInput] = useState("");
+    const displayItem = products.filter((product) => product.name.toLowerCase().includes(searchInput.toLowerCase()));
+
 
   return (
-    <div className='min-h-screen w-full grid grid-cols-6 gap-5 pt-20 bg-[#f0e5de]'>
-        <div className='px-15 col-span-4 h-full w-full flex flex-col bg-[#f0e5de] text-[#2b1b0b]'>
+    <div className='min-h-screen w-full grid grid-cols-6 gap-5 pt-15 bg-[#f0e5de]'>
+        <div className='px-15 col-span-4 h-full w-full flex flex-col bg-[#f0e5de] text-[#2b1b0b] space-y-8'>  
             <div className='flex flex-col justify-center items-center mt-5'>
                 <h5 className='font-semibold uppercase font-sans-body'>Our Collection</h5>
                 <h1 className='font-bold text-5xl font-serif-display'>Featured Products</h1>
                 <h3 className='font-sans-body'>Explore our most popular items loved by customers</h3>
             </div>
-            <div className='grid grid-cols-3 gap-5 mt-15 '>
-                {products.map((product) => (
+            <div className='w-full bg-[#fdf5ef] rounded-full flex'>
+                <div className='border-r border-[#dbd0c0] h-full p-3'>
+                    <IoSearch size={18} />
+                </div> 
+                <input 
+                    type="text" 
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    placeholder='Search item...' 
+                    className='w-full outline-none ml-3'
+                />
+            </div>
+            {displayItem.length === 0 ? 
+                <div className='flex justify-center text-[#2b1b0b]/60'>
+                    <p>No item found</p>
+                </div>
+                :
+                <div className='grid grid-cols-3 gap-5'>
+                {displayItem.map((product) => (
                     <div key={product.id} className='max-w-sm w-full h-auto rounded-xl bg-[#fdf5ef] border border-[#dbd0c0] shadow-sm space-y-3 p-3'>
                         <div className='space-y-1.5'>
                             <img src={product.image} alt={`${product.image}`} />
@@ -75,6 +95,7 @@ function App() {
                     </div>
                 ))}
             </div>
+            }
         </div>
         <div className=' bg-[#fdf5ef] border border-[#dbd0c0] shadow-sm rounded-xl w-11/12 h-200 p-5 space-y-5 col-span-2 font-sans-body'>
             <h1 className='font-semibold text-lg text-center'>Shopping Cart</h1>
