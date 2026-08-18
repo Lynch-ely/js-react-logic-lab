@@ -14,26 +14,25 @@ function App() {
         image: Watch,
         name: "Smart Watch",
         description: "Track your fitness and stay connected",
-        price: 89.99 
+        price: 89.99
     },{
         id: 2,
         image: Headset,
         name: "Wireless Headphones",
         description: "High quality sound with premium comfort",
-        price: 129.99 
+        price: 129.99
     },{
         id: 3,
         image: Camera,
         name: "DSLR Camera",
         description: "Capture moments with perfect clarity",
-        price: 699.99 
+        price: 699.99
     },]
 
     const [cartItems, setCartItems] = useState([]); 
     const [selectedItems, setSelectedItems] = useState([]);
 
     const handleAddCart = (product) => {
-
         // Check if the product was already clicked (cart), if not, it will add the id
         if(selectedItems.includes(product.id)){
             return;
@@ -44,11 +43,9 @@ function App() {
 
         if(!matchedItem){
             setCartItems([...cartItems, {...product, quantity: 1}])
-            console.log(cartItems);
         }else{
-            console.log("Already Existed")
+            console.log("Already Exist")
         }
-    
     }
 
     // SEARCH
@@ -56,10 +53,50 @@ function App() {
     const displayItem = products.filter((product) => product.name.toLowerCase().includes(searchInput.toLowerCase()));
 
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState(null);
+
+    // ADD QUANTITY
+    const addQuantity = (id) => {
+        setCartItems((prevItems) => 
+            prevItems.map((item) => item.id === id ? {...item, quantity: item.quantity + 1 } : item)
+        )
+    }
+
+    // SUBTRACT QUANTITY
+    const subtractQuantity = (id) => {
+        const item = products.find((item) => item.id === id);
+        // console.log(item);
+
+        if(item.quantity > 1){
+            setCartItems((prevItems) => 
+                prevItems.map((item) => item.id === id ? {...item, quantity: item.quantity - 1} : item)
+            );
+        }else{
+            console.log("You want to remove this item from the cart?");
+            setItemToDelete(id)
+            setIsModalOpen(true)
+         }
+    }    
+
+    // HANDLE MODAL LOGIC
+    const modalResponse = (response) => {
+        if(response === "Yes" && itemToDelete !== null){
+            const updateCart = cartItems.filter((item) => item.id !== itemToDelete)
+            const updateSelectedItems = selectedItems.filter((id) => id !== itemToDelete);
+
+            setCartItems(updateCart);
+            setSelectedItems(updateSelectedItems);
+            setIsModalOpen(false);
+        }else{
+            setIsModalOpen(false);
+        }
+    }
+
   return (
     <div className='min-h-screen w-full grid grid-cols-6 gap-5 pt-15 bg-[#f0e5de]'>
         <div className='px-15 col-span-4 h-full w-full flex flex-col bg-[#f0e5de] text-[#2b1b0b] space-y-8'>  
-            <div className='flex flex-col justify-center items-center mt-5'>
+            <div className='flex flex-col justify-center items-center mt-10'>
                 <h5 className='font-semibold uppercase font-sans-body'>Our Collection</h5>
                 <h1 className='font-bold text-5xl font-serif-display'>Featured Products</h1>
                 <h3 className='font-sans-body'>Explore our most popular items loved by customers</h3>
@@ -97,7 +134,7 @@ function App() {
             </div>
             }
         </div>
-        <div className=' bg-[#fdf5ef] border border-[#dbd0c0] shadow-sm rounded-xl w-11/12 h-200 p-5 space-y-5 col-span-2 font-sans-body'>
+        <div className=' bg-[#fdf5ef] border border-[#dbd0c0] shadow-sm rounded-xl w-11/12 h-195 p-5 space-y-5 col-span-2 font-sans-body mt-10'>
             <h1 className='font-semibold text-lg text-center'>Shopping Cart</h1>
 
             <div className='grid grid-cols-4 border-b border-[#dbd0c0] pb-2.5'>
@@ -121,11 +158,11 @@ function App() {
                     <div className='col-span-1 flex items-center'>
                         <div className='bg-[#f0e5de] w-full h-10 rounded-full flex justify-between items-center'>
                             <div className='border-r border-[#dbd0c0] h-full flex justify-center items-center p-2'>
-                                <button><GrFormSubtract /></button>
+                                <button onClick={() => subtractQuantity(cartItem.id)}><GrFormSubtract /></button>
                             </div>
                             <p className='font-bold'>{cartItem.quantity}</p>
                             <div className='border-l border-[#dbd0c0] h-full flex justify-center items-center p-2'>
-                                <button><IoMdAdd /></button>
+                                <button onClick={() => addQuantity(cartItem.id)}><IoMdAdd /></button>
                             </div>
                         </div>
                     </div>
@@ -136,7 +173,19 @@ function App() {
                 </div>
             ))}
         </div>
-    </div>
+
+        {isModalOpen && 
+            <div className='min-h-screen absolute inset-0 bg-black/50 h-full w-full flex justify-center items-center font-serif-display'>
+                <div className='bg-[#f0e5de] max-w-sm w-full h-40 rounded-xl flex flex-col justify-between items-start p-8'>
+                    <h1 className='text-start text-lg'>Are you sure you want to remove this item?</h1>
+                    <div className='space-x-3 w-full flex justify-end'>
+                        <button className='px-5 py-2 bg-stone-300 rounded-xl cursor-pointer' onClick={() => modalResponse("Cancel")}>Cancel</button>
+                        <button className='px-5 py-2 bg-[#dc2626ec] hover:bg-[#dc2626c9] rounded-xl text-white cursor-pointer' onClick={() => modalResponse("Yes")}>Yes</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>    
   )
 }
 
